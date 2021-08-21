@@ -11,7 +11,7 @@ import (
 
 var LimitZipRestore int64 = 1e8
 
-func GZipRestore(ctx context.Context, algorithm string, body []byte, decryptKey []byte) (algorithmUsed string, result []byte, err *mft.Error) {
+func GZipRestore(ctx context.Context, algorithm CompressionType, body []byte, decryptKey []byte) (algorithmUsed CompressionType, result []byte, err *mft.Error) {
 	buf := bytes.NewBuffer(body)
 
 	zr, er0 := gzip.NewReader(buf)
@@ -38,11 +38,11 @@ func GZipRestore(ctx context.Context, algorithm string, body []byte, decryptKey 
 }
 
 func GZipCompressGenerator(level int) CompressFunc {
-	return func(ctx context.Context, algorithm string, body []byte, encryptKey []byte) (algorithmUsed string, result []byte, err *mft.Error) {
+	return func(ctx context.Context, algorithm CompressionType, body []byte, encryptKey []byte) (algorithmUsed CompressionType, result []byte, err *mft.Error) {
 		return GZipCompress(ctx, level, algorithm, body, encryptKey)
 	}
 }
-func GZipCompress(ctx context.Context, level int, algorithm string, body []byte, encryptKey []byte) (algorithmUsed string, result []byte, err *mft.Error) {
+func GZipCompress(ctx context.Context, level int, algorithm CompressionType, body []byte, encryptKey []byte) (algorithmUsed CompressionType, result []byte, err *mft.Error) {
 	var buf bytes.Buffer
 	zw, er0 := gzip.NewWriterLevel(&buf, level)
 	if er0 != nil {

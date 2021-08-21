@@ -7,28 +7,31 @@ import (
 	"github.com/myfantasy/mft"
 )
 
+// Compression or encriprion type
+type CompressionType string
+
 // Algs
 const (
-	NoCompression = ""
-	Zip           = "gzip"
-	Zip1          = "gzip1"
-	Zip9          = "gzip9"
+	NoCompression CompressionType = ""
+	Zip           CompressionType = "gzip"
+	Zip1          CompressionType = "gzip1"
+	Zip9          CompressionType = "gzip9"
 
 	// Aes - AES 256 alg
-	Aes = "aes"
+	Aes CompressionType = "aes"
 )
 
-type CompressFunc func(ctx context.Context, algorithm string, body []byte, encryptKey []byte) (algorithmUsed string, result []byte, err *mft.Error)
-type RestoreFunc func(ctx context.Context, algorithm string, body []byte, decryptKey []byte) (algorithmUsed string, result []byte, err *mft.Error)
+type CompressFunc func(ctx context.Context, algorithm CompressionType, body []byte, encryptKey []byte) (algorithmUsed CompressionType, result []byte, err *mft.Error)
+type RestoreFunc func(ctx context.Context, algorithm CompressionType, body []byte, decryptKey []byte) (algorithmUsed CompressionType, result []byte, err *mft.Error)
 
 // Generator - compressor
 type Generator struct {
 	mx          mfs.PMutex
-	compressors map[string]CompressFunc
-	restores    map[string]RestoreFunc
+	compressors map[CompressionType]CompressFunc
+	restores    map[CompressionType]RestoreFunc
 }
 
-func (g *Generator) Add(name string, compressor CompressFunc, restore RestoreFunc) {
+func (g *Generator) Add(name CompressionType, compressor CompressFunc, restore RestoreFunc) {
 	g.mx.Lock()
 	defer g.mx.Unlock()
 
@@ -39,8 +42,8 @@ func (g *Generator) Add(name string, compressor CompressFunc, restore RestoreFun
 func (g *Generator) Init() {
 	g.mx.Lock()
 	defer g.mx.Unlock()
-	g.compressors = make(map[string]CompressFunc)
-	g.restores = make(map[string]RestoreFunc)
+	g.compressors = make(map[CompressionType]CompressFunc)
+	g.restores = make(map[CompressionType]RestoreFunc)
 }
 
 // GeneratorCreate - generate with default algs
@@ -56,7 +59,7 @@ func GeneratorCreate(gzipDefaultLevel int) *Generator {
 	return g
 }
 
-func (g *Generator) Compress(ctx context.Context, must bool, algorithm string, body []byte, encryptKey []byte) (algorithmUsed string, result []byte, err *mft.Error) {
+func (g *Generator) Compress(ctx context.Context, must bool, algorithm CompressionType, body []byte, encryptKey []byte) (algorithmUsed CompressionType, result []byte, err *mft.Error) {
 	g.mx.RLock()
 	defer g.mx.RUnlock()
 
@@ -75,7 +78,7 @@ func (g *Generator) Compress(ctx context.Context, must bool, algorithm string, b
 
 	return c(ctx, algorithm, body, encryptKey)
 }
-func (g *Generator) Restore(ctx context.Context, algorithm string, body []byte, decryptKey []byte) (algorithmUsed string, result []byte, err *mft.Error) {
+func (g *Generator) Restore(ctx context.Context, algorithm CompressionType, body []byte, decryptKey []byte) (algorithmUsed CompressionType, result []byte, err *mft.Error) {
 	g.mx.RLock()
 	defer g.mx.RUnlock()
 

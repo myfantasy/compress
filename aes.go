@@ -20,8 +20,8 @@ func AesKeyGenerate() []byte {
 	return bytes
 }
 
-func AesEncrypt(ctx context.Context, algorithm string, body []byte, encryptKey []byte,
-) (algorithmUsed string, result []byte, err *mft.Error) {
+func AesEncrypt(ctx context.Context, algorithm CompressionType, body []byte, encryptKey []byte,
+) (algorithmUsed CompressionType, result []byte, err *mft.Error) {
 
 	if len(encryptKey) != 32 {
 		return algorithm, nil, GenerateError(10202000, len(encryptKey))
@@ -47,8 +47,8 @@ func AesEncrypt(ctx context.Context, algorithm string, body []byte, encryptKey [
 	return algorithm, ciphertext, nil
 }
 
-func AesDecrypt(ctx context.Context, algorithm string, body []byte, decryptKey []byte,
-) (algorithmUsed string, result []byte, err *mft.Error) {
+func AesDecrypt(ctx context.Context, algorithm CompressionType, body []byte, decryptKey []byte,
+) (algorithmUsed CompressionType, result []byte, err *mft.Error) {
 	if len(decryptKey) != 32 {
 		return algorithm, nil, GenerateError(10202100, len(decryptKey))
 	}
