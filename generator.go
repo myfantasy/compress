@@ -73,7 +73,7 @@ func (g *Generator) Compress(ctx context.Context, must bool, algorithm Compressi
 			return "", body, nil
 		}
 
-		return "", nil, GenerateError(10200000, algorithm)
+		return "", nil, mft.GenerateError(10200000, algorithm)
 	}
 
 	return c(ctx, algorithm, body, encryptKey)
@@ -88,7 +88,7 @@ func (g *Generator) Restore(ctx context.Context, algorithm CompressionType, body
 
 	r, ok := g.restores[algorithm]
 	if !ok || r == nil {
-		return "", nil, GenerateError(10200001, algorithm)
+		return "", nil, mft.GenerateError(10200001, algorithm)
 	}
 
 	return r(ctx, algorithm, body, decryptKey)

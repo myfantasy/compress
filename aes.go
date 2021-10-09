@@ -24,22 +24,22 @@ func AesEncrypt(ctx context.Context, algorithm CompressionType, body []byte, enc
 ) (algorithmUsed CompressionType, result []byte, err *mft.Error) {
 
 	if len(encryptKey) != 32 {
-		return algorithm, nil, GenerateError(10202000, len(encryptKey))
+		return algorithm, nil, mft.GenerateError(10202000, len(encryptKey))
 	}
 
 	block, er0 := aes.NewCipher(encryptKey)
 	if er0 != nil {
-		return algorithm, nil, GenerateError(10202001, er0)
+		return algorithm, nil, mft.GenerateError(10202001, er0)
 	}
 
 	aesGCM, er0 := cipher.NewGCM(block)
 	if er0 != nil {
-		return algorithm, nil, GenerateError(10202002, er0)
+		return algorithm, nil, mft.GenerateError(10202002, er0)
 	}
 
 	nonce := make([]byte, aesGCM.NonceSize())
 	if _, er0 = io.ReadFull(rand.Reader, nonce); er0 != nil {
-		return algorithm, nil, GenerateError(10202003, er0)
+		return algorithm, nil, mft.GenerateError(10202003, er0)
 	}
 
 	ciphertext := aesGCM.Seal(nonce, nonce, body, nil)
@@ -50,17 +50,17 @@ func AesEncrypt(ctx context.Context, algorithm CompressionType, body []byte, enc
 func AesDecrypt(ctx context.Context, algorithm CompressionType, body []byte, decryptKey []byte,
 ) (algorithmUsed CompressionType, result []byte, err *mft.Error) {
 	if len(decryptKey) != 32 {
-		return algorithm, nil, GenerateError(10202100, len(decryptKey))
+		return algorithm, nil, mft.GenerateError(10202100, len(decryptKey))
 	}
 
 	block, er0 := aes.NewCipher(decryptKey)
 	if er0 != nil {
-		return algorithm, nil, GenerateError(10202101, er0)
+		return algorithm, nil, mft.GenerateError(10202101, er0)
 	}
 
 	aesGCM, er0 := cipher.NewGCM(block)
 	if er0 != nil {
-		return algorithm, nil, GenerateError(10202102, er0)
+		return algorithm, nil, mft.GenerateError(10202102, er0)
 	}
 
 	nonceSize := aesGCM.NonceSize()
@@ -69,7 +69,7 @@ func AesDecrypt(ctx context.Context, algorithm CompressionType, body []byte, dec
 
 	plaintext, er0 := aesGCM.Open(nil, nonce, ciphertext, nil)
 	if er0 != nil {
-		return algorithm, nil, GenerateError(10202103, er0)
+		return algorithm, nil, mft.GenerateError(10202103, er0)
 	}
 
 	return algorithm, plaintext, nil
